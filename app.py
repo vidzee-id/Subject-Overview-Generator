@@ -500,7 +500,7 @@ def main():
                 try:
                     html    = build_poster_html(data)
                     png_img = render_png(html)
-                    docx_file = builddocx(data)
+                    docx_file = build_docx(data)
                 except Exception as e:
                     st.error(f"Image render failed: {e}")
                     st.stop()
