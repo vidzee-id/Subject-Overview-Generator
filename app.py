@@ -1,7 +1,7 @@
 import streamlit as st
 import anthropic
 import json
-from html2image import Html2Image
+from playwright.sync_api import sync_playwright
 import tempfile
 import os
 import fitz  # PyMuPDF
@@ -232,19 +232,34 @@ def build_poster_html(data):
 </body></html>"""
 
 
-# ── Render PNG via html2image ─────────────────────────────────────
+# ── Render PNG via playwrite ─────────────────────────────────────
 def render_png(html):
     with tempfile.TemporaryDirectory() as tmpdir:
-        hti = Html2Image(output_path=tmpdir)
+        html_file = os.path.join(tmpdir, "poster.html")
 
-        hti.screenshot(
-            html_str=html,
-            save_as="poster.png",
-            size=(1000, 1400)
-        )
+        with open(html_file, "w", encoding="utf-8") as f:
+            f.write(html)
 
-        with open(os.path.join(tmpdir, "poster.png"), "rb") as f:
-            return f.read()
+        with sync_playwright() as p:
+            browser = p.chromium.launch(
+                headless=True,
+                args=["--no-sandbox"]
+            )
+
+            page = browser.new_page(
+                viewport={"width": 1000, "height": 1400}
+            )
+
+            page.goto(f"file://{html_file}")
+
+            png_bytes = page.screenshot(
+                full_page=True,
+                type="png"
+            )
+
+            browser.close()
+
+        return png_bytes
 
 
 # ── Main UI ────────────────────────────────────────────────────
