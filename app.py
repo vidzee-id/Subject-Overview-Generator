@@ -261,7 +261,7 @@ def render_png(html):
             )
 
             page = browser.new_page(
-                viewport={"width": 1000, "height": 1400}
+                viewport={"width": 1000, "height": 1400},
                 device_scale_factor=3
             )
 
