@@ -250,15 +250,15 @@ def render_png(html):
             f.write(html)
 
         with sync_playwright() as p:
-            browser = p.chromium.launch(
-                headless=True,
-                args=[
-                    "--no-sandbox",
-                    "--disable-dev-shm-usage",
-                    "--disable-gpu"
-                ]
-            )
-
+          browser = p.chromium.launch(
+    executable_path="/usr/bin/chromium",
+    headless=True,
+    args=[
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu"
+    ]
+)
             page = browser.new_page(
                 viewport={"width": 1000, "height": 1400}
             )
