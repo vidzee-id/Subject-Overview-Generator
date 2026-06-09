@@ -6,7 +6,16 @@ import tempfile
 import os
 import fitz  # PyMuPDF
 from docx import Document as DocxDoc
+import subprocess
+import os
 
+try:
+    subprocess.run(
+        ["python", "-m", "playwright", "install", "chromium"],
+        check=False
+    )
+except Exception:
+    pass
 # ── Page config ───────────────────────────────────────────────
 st.set_page_config(
     page_title="Subject Overview Generator · UNext",
@@ -241,10 +250,14 @@ def render_png(html):
             f.write(html)
 
         with sync_playwright() as p:
-            browser = p.chromium.launch(
-                headless=True,
-                args=["--no-sandbox"]
-            )
+          browser = p.chromium.launch(
+    headless=True,
+    args=[
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu"
+    ]
+)
 
             page = browser.new_page(
                 viewport={"width": 1000, "height": 1400}
