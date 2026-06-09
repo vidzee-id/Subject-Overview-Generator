@@ -8,7 +8,9 @@ import fitz  # PyMuPDF
 from docx import Document as DocxDoc
 import subprocess
 import os
-
+from docx import Document
+from docx.shared import Pt, RGBColor
+from io import BytesIO
 try:
     subprocess.run(
         ["python", "-m", "playwright", "install", "chromium"],
@@ -390,6 +392,64 @@ def render_png(html):
 
         return png_bytes
 # ── Main UI ────────────────────────────────────────────────────
+def build_docx(data):
+
+    doc = Document()
+
+    # Title
+    title = doc.add_paragraph()
+    run = title.add_run(data.get("subjectLine1", ""))
+    run.bold = True
+    run.font.size = Pt(24)
+
+    if data.get("subjectLine2"):
+        title.add_run("\n")
+        run2 = title.add_run(data["subjectLine2"])
+        run2.italic = True
+        run2.font.size = Pt(24)
+        run2.font.color.rgb = RGBColor(244, 121, 32)
+
+    doc.add_paragraph()
+
+    table = doc.add_table(rows=1, cols=3)
+    table.autofit = True
+
+    sections = [
+        ("Learning Outcomes", data["outcomes"]),
+        ("Competencies / Skills", data["competencies"]),
+        ("Job Roles", data["roles"])
+    ]
+
+    for i, (heading, items) in enumerate(sections):
+
+        cell = table.rows[0].cells[i]
+
+        p = cell.paragraphs[0]
+        run = p.add_run(heading)
+        run.bold = True
+
+        p.add_run("\n\n")
+
+        for item in items:
+
+            if "title" in item:
+                title_text = item["title"]
+            else:
+                title_text = (
+                    item.get("keyword", "") +
+                    item.get("rest", "")
+                )
+
+            r = p.add_run(title_text + "\n")
+            r.bold = True
+
+            p.add_run(item.get("body", "") + "\n\n")
+
+    buffer = BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+
+    return buffer.getvalue()
 def main():
     st.markdown('<p class="eyebrow">UNext Learning</p>', unsafe_allow_html=True)
     st.title("Subject Overview Generator")
@@ -440,6 +500,7 @@ def main():
                 try:
                     html    = build_poster_html(data)
                     png_img = render_png(html)
+                    docx_file = builddocx(data)
                 except Exception as e:
                     st.error(f"Image render failed: {e}")
                     st.stop()
@@ -458,7 +519,12 @@ def main():
                 file_name=f"subject_overview_{subject_slug}.png",
                 mime="image/png",
             )
-
+            st.download_button(
+                lable = "⬇ Download Editable Word Document",
+                data = docx_file,
+                file_name=f"subject_overview_{subject_slug}.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            )
 
 if __name__ == "__main__":
     main()
