@@ -232,7 +232,7 @@ def build_poster_html(data):
 </body></html>"""
 
 
-# ── Render PNG via imgkit ─────────────────────────────────────
+# ── Render PNG via html2image ─────────────────────────────────────
 def render_png(html):
     with tempfile.TemporaryDirectory() as tmpdir:
         hti = Html2Image(output_path=tmpdir)
