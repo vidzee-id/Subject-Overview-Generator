@@ -520,7 +520,7 @@ def main():
                 mime="image/png",
             )
             st.download_button(
-                lable = "⬇ Download Editable Word Document",
+                label = "⬇ Download Editable Word Document",
                 data = docx_file,
                 file_name=f"subject_overview_{subject_slug}.docx",
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
