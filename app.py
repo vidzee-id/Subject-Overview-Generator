@@ -85,7 +85,101 @@ ICONS = {
 }
 
 VALID_ICONS = list(ICONS.keys())
+def assign_icons(data):
 
+    ICON_MAP = {
+
+        # International Relations / Political Science
+        "foreign": "map",
+        "international": "map",
+        "global": "map",
+        "diplomacy": "message-dots",
+        "communication": "message-dots",
+        "policy": "report-analytics",
+        "governance": "scale",
+        "government": "scale",
+        "law": "scale",
+        "ethics": "scale",
+
+        # Strategy & Management
+        "strategy": "target",
+        "strategic": "target",
+        "leadership": "briefcase",
+        "management": "hierarchy-2",
+        "project": "hierarchy-2",
+
+        # Analytics & Research
+        "analysis": "chart-line",
+        "analyse": "chart-line",
+        "research": "search",
+        "data": "database",
+        "statistics": "chart-scatter",
+        "probability": "chart-scatter",
+
+        # Finance & Economics
+        "finance": "trending-up",
+        "financial": "trending-up",
+        "investment": "trending-up",
+        "economics": "chart-bar",
+        "economic": "chart-bar",
+        "accounting": "checks",
+        "audit": "checks",
+        "auditing": "checks",
+
+        # Technology
+        "technology": "cpu",
+        "digital": "cpu",
+        "artificial intelligence": "robot",
+        "machine learning": "robot",
+        "ai": "robot",
+        "coding": "code",
+        "programming": "code",
+
+        # Literature & Language
+        "literature": "book",
+        "literary": "book",
+        "novel": "book",
+        "fiction": "book",
+        "writing": "file-text",
+        "journalism": "file-text",
+        "media": "file-text",
+        "language": "letter-case",
+        "linguistics": "letter-case",
+
+        # Science
+        "science": "microscope",
+        "scientific": "microscope",
+
+        # Security
+        "security": "shield-check",
+        "risk": "shield-check",
+
+        # Innovation
+        "innovation": "bulb"
+    }
+
+    for section in ["outcomes", "competencies", "roles"]:
+
+        for item in data.get(section, []):
+
+            if section == "roles":
+                text = (
+                    item.get("title", "") + " " +
+                    item.get("body", "")
+                ).lower()
+            else:
+                text = (
+                    item.get("keyword", "") + " " +
+                    item.get("rest", "") + " " +
+                    item.get("body", "")
+                ).lower()
+
+            for keyword, icon in ICON_MAP.items():
+                if keyword in text:
+                    item["icon"] = icon
+                    break
+
+    return data
 # ── Claude prompt ─────────────────────────────────────────────
 SYSTEM_PROMPT = f"""You are a curriculum design assistant. Analyse the provided syllabus and return ONLY valid JSON — no markdown fences, no explanation, just the raw JSON object.
 
@@ -207,8 +301,8 @@ def build_poster_html(data):
             items_html += item_html(item, col["accent"], col["bg"],
                                     col["key"] == "roles", is_last)
         border_right = "0.5px solid rgba(0,0,0,0.09)" if ci < 2 else "none"
-        pad_left  = "38px" if ci == 2 else "0"
-        pad_right = "38px" if ci < 2 else "0"
+        pad_left  = "24px"
+        pad_right = "24px"        
         col_blocks += f"""
         <div style="padding-left:{pad_left};padding-right:{pad_right};
                     border-right:{border_right};">
@@ -254,8 +348,13 @@ def build_poster_html(data):
   <div style="height:3px;border-radius:2px;margin-bottom:44px;
               background:linear-gradient(90deg,#0D2D6B 52%,#0F6E56 76%,#F47920 100%);"></div>
 
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);">
-    {col_blocks}
+  <div style="
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  column-gap:8px;
+  ">
+  display:grid;
+     {col_blocks}
   </div>
 </div>
 </body></html>"""
@@ -337,6 +436,7 @@ def main():
                 st.write("🧠 Extracting outcomes, competencies and job roles…")
                 try:
                     data = extract_content(text, api_key)
+                    data = assign_icons(data)                    
                 except Exception as e:
                     st.error(f"Content extraction failed: {e}")
                     st.stop()
