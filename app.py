@@ -250,14 +250,14 @@ def render_png(html):
             f.write(html)
 
         with sync_playwright() as p:
-          browser = p.chromium.launch(
-    headless=True,
-    args=[
-        "--no-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu"
-    ]
-)
+            browser = p.chromium.launch(
+                headless=True,
+                args=[
+                    "--no-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-gpu"
+                ]
+            )
 
             page = browser.new_page(
                 viewport={"width": 1000, "height": 1400}
@@ -273,8 +273,6 @@ def render_png(html):
             browser.close()
 
         return png_bytes
-
-
 # ── Main UI ────────────────────────────────────────────────────
 def main():
     st.markdown('<p class="eyebrow">UNext Learning</p>', unsafe_allow_html=True)
