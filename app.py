@@ -1,7 +1,9 @@
 import streamlit as st
 import anthropic
 import json
-import imgkit
+from html2image import Html2Image
+import tempfile
+import os
 import fitz  # PyMuPDF
 from docx import Document as DocxDoc
 
@@ -232,15 +234,17 @@ def build_poster_html(data):
 
 # ── Render PNG via imgkit ─────────────────────────────────────
 def render_png(html):
-    options = {
-        "format":                 "png",
-        "width":                  "1000",
-        "encoding":               "UTF-8",
-        "quality":                "100",
-        "enable-local-file-access": None,
-        "disable-smart-width":    None,
-    }
-    return imgkit.from_string(html, False, options=options)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        hti = Html2Image(output_path=tmpdir)
+
+        hti.screenshot(
+            html_str=html,
+            save_as="poster.png",
+            size=(1000, 1400)
+        )
+
+        with open(os.path.join(tmpdir, "poster.png"), "rb") as f:
+            return f.read()
 
 
 # ── Main UI ────────────────────────────────────────────────────
