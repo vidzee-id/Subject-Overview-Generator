@@ -105,11 +105,31 @@ JSON structure:
 }}
 
 Rules:
-- outcomes: exactly 4 items. Each keyword must be a Bloom's Taxonomy verb: Analyse, Build, Design, Evaluate, Apply, Create, Interpret, or Construct
-- competencies: exactly 4 items with a highlighted keyword + rest of title
-- roles: exactly 4 items with concrete, specific real-world task descriptions — not generic
-- For each icon choose the BEST fit from ONLY this list: {", ".join(VALID_ICONS)}
-- Use UK English spelling throughout (Analyse, Optimising, Summarisation, Personalisation etc.)
+- outcomes: exactly 4 items.
+- Each keyword must be a Bloom's Taxonomy verb: Analyse, Build, Design, Evaluate, Apply, Create, Interpret, or Construct.
+- Outcome titles should be concise and action-oriented.
+- Outcome body text should be 10-15 words maximum.
+- Focus on practical learner capability rather than academic description.
+
+- competencies: exactly 4 items.
+- Competency titles should be short, professional skill statements.
+- Competency body text should be 10-15 words maximum.
+- Avoid generic educational language.
+
+- roles: exactly 4 items.
+- Use realistic industry job titles.
+- Job role descriptions must describe what the professional actually does day-to-day.
+- Body text should be 15-20 words maximum.
+- Avoid textbook explanations.
+
+Writing Style:
+- Be concise and professional.
+- Avoid phrases such as "students will learn", "students examine", "students understand".
+- Write in a modern, industry-oriented style.
+- Use strong action verbs.
+- Prefer practical outcomes over academic descriptions.
+- Every sentence should be easily scannable on a poster.
+- Minimise unnecessary words.
 - Return ONLY the JSON object. No markdown. No extra text."""
 
 
