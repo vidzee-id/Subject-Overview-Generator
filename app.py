@@ -10,6 +10,8 @@ import subprocess
 import os
 from docx import Document
 from docx.shared import Pt, RGBColor
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 from io import BytesIO
 try:
     subprocess.run(
@@ -391,65 +393,167 @@ def render_png(html):
             browser.close()
 
         return png_bytes
-# ── Main UI ────────────────────────────────────────────────────
+# ── Build Word Document ────────────────────────────────────────────────────
+def set_cell_background(cell, color):
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+
+    shd = OxmlElement('w:shd')
+    shd.set(qn('w:fill'), color)
+
+    tcPr.append(shd)
+
+
+def set_cell_border(cell):
+
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+
+    borders = OxmlElement('w:tcBorders')
+
+    for edge in ["top", "left", "bottom", "right"]:
+
+        element = OxmlElement(f"w:{edge}")
+        element.set(qn("w:val"), "single")
+        element.set(qn("w:sz"), "4")
+        element.set(qn("w:color"), "D9D9D9")
+
+        borders.append(element)
+
+    tcPr.append(borders)
 def build_docx(data):
+
+    from docx import Document
+    from docx.shared import Pt
+    from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+    from io import BytesIO
 
     doc = Document()
 
+    section = doc.sections[0]
+
+    section.top_margin = Pt(30)
+    section.bottom_margin = Pt(30)
+    section.left_margin = Pt(35)
+    section.right_margin = Pt(35)
+
+    # Eyebrow
+    p = doc.add_paragraph()
+    p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    run = p.add_run("SUBJECT OVERVIEW")
+    run.bold = True
+    run.font.size = Pt(10)
+    run.font.color.rgb = RGBColor(244,121,32)
+
     # Title
     title = doc.add_paragraph()
-    run = title.add_run(data.get("subjectLine1", ""))
-    run.bold = True
-    run.font.size = Pt(24)
+    title.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    r1 = title.add_run(data.get("subjectLine1",""))
+    r1.bold = True
+    r1.font.size = Pt(24)
+    r1.font.color.rgb = RGBColor(13,45,107)
 
     if data.get("subjectLine2"):
+
         title.add_run("\n")
-        run2 = title.add_run(data["subjectLine2"])
-        run2.italic = True
-        run2.font.size = Pt(24)
-        run2.font.color.rgb = RGBColor(244, 121, 32)
+
+        r2 = title.add_run(data["subjectLine2"])
+        r2.italic = True
+        r2.font.size = Pt(24)
+        r2.font.color.rgb = RGBColor(244,121,32)
 
     doc.add_paragraph()
+
+    # Main 3-column table
 
     table = doc.add_table(rows=1, cols=3)
     table.autofit = True
 
-    sections = [
-        ("Learning Outcomes", data["outcomes"]),
-        ("Competencies / Skills", data["competencies"]),
-        ("Job Roles", data["roles"])
+    configs = [
+
+        (
+            "LEARNING OUTCOMES",
+            "0D2D6B",
+            data["outcomes"]
+        ),
+
+        (
+            "COMPETENCIES / SKILLS",
+            "0F6E56",
+            data["competencies"]
+        ),
+
+        (
+            "JOB ROLES",
+            "F47920",
+            data["roles"]
+        )
     ]
 
-    for i, (heading, items) in enumerate(sections):
+    for col, (title_text, color, items) in enumerate(configs):
 
-        cell = table.rows[0].cells[i]
+        cell = table.cell(0, col)
 
-        p = cell.paragraphs[0]
-        run = p.add_run(heading)
+        # Header row
+
+        header = cell.paragraphs[0]
+
+        header.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+        run = header.add_run(title_text)
+
         run.bold = True
+        run.font.size = Pt(11)
+        run.font.color.rgb = RGBColor(255,255,255)
 
-        p.add_run("\n\n")
+        set_cell_background(cell, color)
+
+        cell.add_paragraph()
+
+        # Item cards
 
         for item in items:
 
+            mini = cell.add_table(rows=1, cols=1)
+
+            mini_cell = mini.cell(0,0)
+
+            set_cell_border(mini_cell)
+
+            p = mini_cell.paragraphs[0]
+
             if "title" in item:
-                title_text = item["title"]
+
+                heading = item["title"]
+
             else:
-                title_text = (
-                    item.get("keyword", "") +
-                    item.get("rest", "")
+
+                heading = (
+                    item.get("keyword","") +
+                    item.get("rest","")
                 )
 
-            r = p.add_run(title_text + "\n")
-            r.bold = True
+            r = p.add_run(heading + "\n")
 
-            p.add_run(item.get("body", "") + "\n\n")
+            r.bold = True
+            r.font.size = Pt(10)
+
+            body = p.add_run(item.get("body",""))
+
+            body.font.size = Pt(9)
+
+            cell.add_paragraph()
 
     buffer = BytesIO()
+
     doc.save(buffer)
+
     buffer.seek(0)
 
     return buffer.getvalue()
+# ── Main UI ────────────────────────────────────────────────────
 def main():
     st.markdown('<p class="eyebrow">UNext Learning</p>', unsafe_allow_html=True)
     st.title("Subject Overview Generator")
