@@ -348,13 +348,8 @@ def build_poster_html(data):
   <div style="height:3px;border-radius:2px;margin-bottom:44px;
               background:linear-gradient(90deg,#0D2D6B 52%,#0F6E56 76%,#F47920 100%);"></div>
 
-  <div style="
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  column-gap:8px;
-  ">
-  display:grid;
-     {col_blocks}
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);column-gap:8px;">
+       {col_blocks}
   </div>
 </div>
 </body></html>"""
