@@ -421,6 +421,63 @@ def set_cell_border(cell):
         borders.append(element)
 
     tcPr.append(borders)
+def build_svg(data):
+
+    svg = f"""
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1000"
+     height="1400"
+     viewBox="0 0 1000 1400">
+
+<rect width="100%" height="100%" fill="white"/>
+
+<text
+    x="60"
+    y="70"
+    font-size="18"
+    fill="#F47920"
+    font-family="Arial">
+
+SUBJECT OVERVIEW
+
+</text>
+
+<text
+    x="60"
+    y="140"
+    font-size="42"
+    fill="#0D2D6B"
+    font-family="Arial"
+    font-weight="bold">
+
+{data.get("subjectLine1","")}
+
+</text>
+
+<text
+    x="60"
+    y="190"
+    font-size="38"
+    fill="#F47920"
+    font-family="Arial"
+    font-style="italic">
+
+{data.get("subjectLine2","")}
+
+</text>
+
+<line
+    x1="50"
+    y1="240"
+    x2="950"
+    y2="240"
+    stroke="#0D2D6B"
+    stroke-width="2"/>
+
+</svg>
+"""
+
+    return svg
 def build_docx(data):
 
     from docx import Document
@@ -604,6 +661,7 @@ def main():
                 try:
                     html    = build_poster_html(data)
                     png_img = render_png(html)
+                    svg_file   = build_svg(data)
                     docx_file = build_docx(data)
                 except Exception as e:
                     st.error(f"Image render failed: {e}")
@@ -628,6 +686,12 @@ def main():
                 data = docx_file,
                 file_name=f"subject_overview_{subject_slug}.docx",
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            )
+            st.download.button(
+                label="⬇ Download Editable SVG",
+                data=svg_file,
+                file_name=f"{subject_slug}.svg",
+                mime="image/svg+xml"
             )
 
 if __name__ == "__main__":
