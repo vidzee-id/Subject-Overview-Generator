@@ -687,7 +687,7 @@ def main():
                 file_name=f"subject_overview_{subject_slug}.docx",
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             )
-            st.download.button(
+            st.download_button(
                 label="⬇ Download Editable SVG",
                 data=svg_file,
                 file_name=f"{subject_slug}.svg",
