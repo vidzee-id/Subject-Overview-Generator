@@ -8,6 +8,7 @@ import fitz  # PyMuPDF
 from docx import Document as DocxDoc
 import subprocess
 import os
+from xml.sax.saxutils import escape
 from docx import Document
 from docx.shared import Pt, RGBColor
 from docx.oxml import OxmlElement
@@ -422,6 +423,8 @@ def set_cell_border(cell):
 
     tcPr.append(borders)
 def build_svg(data):
+    subject1 = escape(data.get("subjectLine1", ""))
+    subject2 = escape(data.get("subjectLine2", ""))
 
     svg = f"""
 <svg xmlns="http://www.w3.org/2000/svg"
@@ -450,7 +453,7 @@ SUBJECT OVERVIEW
     font-family="Arial"
     font-weight="bold">
 
-{data.get("subjectLine1","")}
+{subject1}
 
 </text>
 
@@ -462,7 +465,7 @@ SUBJECT OVERVIEW
     font-family="Arial"
     font-style="italic">
 
-{data.get("subjectLine2","")}
+{subject2}
 
 </text>
 
