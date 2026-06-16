@@ -423,6 +423,9 @@ def set_cell_border(cell):
 
     tcPr.append(borders)
 def build_svg(data):
+
+    from xml.sax.saxutils import escape
+
     subject1 = escape(data.get("subjectLine1", ""))
     subject2 = escape(data.get("subjectLine2", ""))
 
@@ -434,39 +437,27 @@ def build_svg(data):
 
 <rect width="100%" height="100%" fill="white"/>
 
-<text
-    x="60"
-    y="70"
-    font-size="18"
-    fill="#F47920"
-    font-family="Arial">
-
+<text x="60" y="70"
+      font-size="18"
+      fill="#F47920"
+      font-family="Arial">
 SUBJECT OVERVIEW
-
 </text>
 
-<text
-    x="60"
-    y="140"
-    font-size="42"
-    fill="#0D2D6B"
-    font-family="Arial"
-    font-weight="bold">
-
+<text x="60" y="140"
+      font-size="42"
+      fill="#0D2D6B"
+      font-family="Arial"
+      font-weight="bold">
 {subject1}
-
 </text>
 
-<text
-    x="60"
-    y="190"
-    font-size="38"
-    fill="#F47920"
-    font-family="Arial"
-    font-style="italic">
-
+<text x="60" y="190"
+      font-size="38"
+      fill="#F47920"
+      font-family="Arial"
+      font-style="italic">
 {subject2}
-
 </text>
 
 <line
@@ -477,6 +468,106 @@ SUBJECT OVERVIEW
     stroke="#0D2D6B"
     stroke-width="2"/>
 
+<!-- COLUMN HEADERS -->
+
+<rect x="50" y="280" width="280" height="50"
+      fill="#E8ECF7"/>
+
+<rect x="360" y="280" width="280" height="50"
+      fill="#DDF0EA"/>
+
+<rect x="670" y="280" width="280" height="50"
+      fill="#F8EBDD"/>
+
+<text x="70" y="312"
+      font-size="16"
+      font-weight="bold"
+      fill="#0D2D6B">
+LEARNING OUTCOMES
+</text>
+
+<text x="380" y="312"
+      font-size="16"
+      font-weight="bold"
+      fill="#0F6E56">
+COMPETENCIES / SKILLS
+</text>
+
+<text x="690" y="312"
+      font-size="16"
+      font-weight="bold"
+      fill="#F47920">
+JOB ROLES
+</text>
+"""
+
+    # -----------------------------
+    # LEARNING OUTCOMES
+    # -----------------------------
+
+    y = 380
+
+    for item in data["outcomes"]:
+
+        title = escape(item["keyword"] + item["rest"])
+
+        svg += f"""
+<text x="70"
+      y="{y}"
+      font-size="16"
+      font-weight="bold"
+      fill="#0D2D6B">
+{title}
+</text>
+"""
+
+        y += 90
+
+    # -----------------------------
+    # COMPETENCIES
+    # -----------------------------
+
+    y = 380
+
+    for item in data["competencies"]:
+
+        title = escape(item["keyword"] + item["rest"])
+
+        svg += f"""
+<text x="380"
+      y="{y}"
+      font-size="16"
+      font-weight="bold"
+      fill="#0F6E56">
+{title}
+</text>
+"""
+
+        y += 90
+
+    # -----------------------------
+    # JOB ROLES
+    # -----------------------------
+
+    y = 380
+
+    for item in data["roles"]:
+
+        title = escape(item["title"])
+
+        svg += f"""
+<text x="690"
+      y="{y}"
+      font-size="16"
+      font-weight="bold"
+      fill="#F47920">
+{title}
+</text>
+"""
+
+        y += 90
+
+    svg += """
 </svg>
 """
 
